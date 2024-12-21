@@ -221,8 +221,9 @@ struct Lucy {
 			free(data.labels[i]);
 		}
 		free(data.labels);
-	
 	    fclose(file);
+	    
+	    isConfigured = true;
 	    printf("Dados do modelo '%s' foram carregados!\n", filename);
 	}
 	

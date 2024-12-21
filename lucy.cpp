@@ -22,25 +22,52 @@ int main(int argc, char** argv)
 		"TRIANGULO"				// Label do classe 2
 	};
 	
+	int epochs = 0;
+	double learning = 0.0;
+	bool isTransfer = false;
+	
 	for(int i = 1; i < argc; i++){
 		if(strcmp(argv[i], "--train") == 0){
-			lucy.initialize_network(0, 5000, 0.5);	// Inicialize a rede 0 com 5000 épocas e 0.5 de aprendizado
-			lucy.create_model(0, 2, argv[++i], dataset, labels); //"quadrados", "QUADRADO", "TRIANGULO");	// Treinar o modelo 0
+			if(argv[++i] != NULL){
+				char* name = argv[i];
+				for(; i < argc; i++){
+					if(strcmp(argv[i], "-e") == 0)
+						epochs = atoi(argv[++i]);
+					if(strcmp(argv[i], "-l") == 0)
+						learning = atof(argv[++i]);
+					if(strcmp(argv[i], "--transfer") == 0)
+						isTransfer = true;
+				}
+				
+				if(isTransfer)
+					lucy.load_training(0, name);
+				else
+					lucy.initialize_network(0, epochs, learning);	// Inicialize a rede 0 com 5000 épocas e 0.5 de aprendizado
+				lucy.create_model(0, 2, name, dataset, labels); //"quadrados", "QUADRADO", "TRIANGULO");	// Treinar o modelo 0
+			}else{
+				printf("Insira o nome ou arquivo do modelo.");
+				break;
+			}
+			continue;
 		}
 		
 		if(strcmp(argv[i], "--pred") == 0){
 			lucy.rename(0, argv[++i]);						// Atribua um nome para a rede
 			
-			if(argv[++i] != NULL)
+			if(argv[++i] != NULL){
 				lucy.show_response(0, argv[i]);	// Faça a previsão da entrada na rede fignet
-			else
+			}
+			else{
 				printf("Forneca uma imagem de entrada!\n");
+				break;
+			}
+			continue;	
 		}
 		
 		if(strcmp(argv[i], "--info") == 0){
 			if(argv[++i] != NULL){
 				lucy.load_training(0, argv[i]);			// Carrega dados de treinamento
-				
+			
 				FILE *file;
 				if(argv[++i] != NULL){
 					// Redireciona stdout para um arquivo
@@ -59,8 +86,10 @@ int main(int argc, char** argv)
 				    printf("As configuracoes foram salvas em '%s'\n", argv[i]);
 				}
 			}else{
-				printf("Forneca o nome do modelo!\n");	
+				printf("Forneca o nome do modelo!\n");
+				break;	
 			}
+			continue;
 		}
 	}
 	
