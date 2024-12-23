@@ -24,6 +24,7 @@ struct Lucy {
 	int networkAmmt = 0;
 	int pos = 1;
 	bool isConfigured = false;
+	bool isLoaded = false;
 	int** camadas;
 	
 	void create_network(int dataset_count){
@@ -35,7 +36,7 @@ struct Lucy {
 	void initialize_network(int model, int epocas, double learning_rate){	
 		network[model].epocas = (epocas != 0) ? epocas : 10000;		
 		network[model].learning_rate = (learning_rate != 0) ? learning_rate : 0.5; 
-		if(isConfigured)
+		if(isConfigured && !isLoaded)
 			network[model].iniciar(camadas[model], network[model].layers_ammount);
 	}
 	
@@ -156,6 +157,7 @@ struct Lucy {
 		}
 		free(data.labels);
 	
+		isConfigured = true;
 	    fclose(file);
 	    printf("Dados do modelo '%s' foram salvos!\n", filename);
 	}
@@ -224,6 +226,7 @@ struct Lucy {
 	    fclose(file);
 	    
 	    isConfigured = true;
+	    isLoaded = true;
 	    printf("Dados do modelo '%s' foram carregados!\n", filename);
 	}
 	

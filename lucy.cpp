@@ -12,10 +12,10 @@ int main(int argc, char** argv)
 	Lucy lucy;
 	lucy.create_network(1);							// Crie uma rede neural
 	
-	char* dataset[] = { 
-		"quadrados", 			// Pasta de dataset 1
-		"triangulos" 			// Pasta de dataset 2
-	};
+	//char* dataset[] = { 
+	//	"quadrados", 			// Pasta de dataset 1
+	//	"triangulos" 			// Pasta de dataset 2
+	//};
 	
 	char* labels[] = {
 		"QUADRADO",				// Label do classe 1
@@ -24,30 +24,56 @@ int main(int argc, char** argv)
 	
 	int epochs = 0;
 	double learning = 0.0;
+	int classes = 0;
+	int data = 0;
 	bool isTransfer = false;
+	
+	char** dataset;
 	
 	for(int i = 1; i < argc; i++){
 		if(strcmp(argv[i], "--train") == 0){
 			if(argv[++i] != NULL){
 				char* name = argv[i];
 				for(; i < argc; i++){
+					if(strcmp(argv[i], "-c") == 0){
+						classes = atoi(argv[++i]);
+						dataset = (char**) malloc(classes * sizeof(char*));
+					}
+
 					if(strcmp(argv[i], "-e") == 0)
 						epochs = atoi(argv[++i]);
 					if(strcmp(argv[i], "-l") == 0)
 						learning = atof(argv[++i]);
+						
+					if(strcmp(argv[i], "-d") == 0){
+						++i;
+						int k = 0;
+						
+						for(int j = 0; j < classes; j++, k++){
+							char rotulo[100];
+							int x = 0;
+							for(; argv[i][k] != ',' && argv[i][k] != 0; k++)
+								rotulo[x++] = argv[i][k];
+							rotulo[x] = 0;
+							dataset[data] = (char*) malloc(x+1);
+							strcpy(dataset[data++], rotulo);
+						}
+					}
+						
 					if(strcmp(argv[i], "--transfer") == 0)
 						isTransfer = true;
 				}
 				
 				if(isTransfer)
 					lucy.load_training(0, name);
-				else
-					lucy.initialize_network(0, epochs, learning);	// Inicialize a rede 0 com 5000 épocas e 0.5 de aprendizado
-				lucy.create_model(0, 2, name, dataset, labels); //"quadrados", "QUADRADO", "TRIANGULO");	// Treinar o modelo 0
+					
+				lucy.initialize_network(0, epochs, learning);		// Inicialize a rede 0 com 5000 épocas e 0.5 de aprendizado
+				lucy.create_model(0, classes, name, dataset, labels); 	// Treinar o modelo 0
 			}else{
 				printf("Insira o nome ou arquivo do modelo.");
 				break;
 			}
+			free(dataset);
 			continue;
 		}
 		
@@ -94,6 +120,7 @@ int main(int argc, char** argv)
 	}
 	
 	lucy.close_network();							// Fecha todas as redes neurais
+		
 	
     return 0;
 }
