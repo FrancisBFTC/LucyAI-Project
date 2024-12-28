@@ -33,4 +33,14 @@ struct Neuron {
     double sigmoid(double x){
         return 1 / (1 + exp(-x));
     }
+    
+    // Função max genérica
+	double max(double a, double b) {
+	    return (a > b) ? a : b;
+	}
+	
+	// Função ReLU utilizando max
+	double relu(double x) {
+	    return max(0, x);
+	}
 };
